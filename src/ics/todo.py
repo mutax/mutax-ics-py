@@ -8,6 +8,7 @@ from typing import ClassVar, Optional, Type
 import attr
 from attr.validators import in_
 from attr.validators import optional as v_optional
+from attr.converters import optional as c_optional
 
 from ics.event import CalendarEntryAttrs
 from ics.timespan import Timespan, TodoTimespan
@@ -16,6 +17,7 @@ from ics.utils import ensure_datetime, ensure_timedelta
 
 MAX_PERCENT = 100
 MAX_PRIORITY = 9
+TODO_STATUS_VALUES = (None, "TENTATIVE", "CONFIRMED", "CANCELLED", "NEEDS-ACTION")
 
 
 @attr.s(eq=True, order=False)  # order methods are provided by CalendarEntryAttrs
@@ -27,6 +29,8 @@ class TodoAttrs(CalendarEntryAttrs):
         default=None, validator=v_optional(in_(range(0, MAX_PRIORITY + 1)))
     )
     completed: Optional[datetime] = attr.ib(default=None, converter=ensure_datetime)
+
+    status: Optional[str] = attr.ib(default=None, converter=c_optional(str.upper), validator=in_(TODO_STATUS_VALUES))  # type: ignore[misc]
 
 
 class Todo(TodoAttrs):
